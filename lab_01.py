@@ -67,7 +67,8 @@ def training_mode(f, x, func_activ, func_activ_der):
             k - 1, str(y), w[0], w[1], w[2], w[3], w[4], errors))
         k += 1
 
-        if k > 50: return -1
+        if k > 50: 
+            return -1
 
     return k - 1, sumError
 
