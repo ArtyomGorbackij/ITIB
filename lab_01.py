@@ -58,7 +58,7 @@ def training_mode(f, x, func_activ, func_activ_der):
                 delta = f[i] - y[i]
 
                 for j in range(len(w)):
-                    w[j] += eta * delta * x[i][j] * func_activ_der(y[i])
+                    w[j] += eta * delta * x[i][j] * func_activ_der(net_y)
 
         errors = sum((f[i] ^ y[i]) for i in range(16))
         sumError.append(errors)
@@ -67,7 +67,7 @@ def training_mode(f, x, func_activ, func_activ_der):
             k - 1, str(y), w[0], w[1], w[2], w[3], w[4], errors))
         k += 1
 
-        if k > 50: 
+        if k > 100:
             return -1
 
     return k - 1, sumError
@@ -104,7 +104,7 @@ def training_brute_force(f, x, func_activ, func_activ_der, num_of_vec, flag):
                 delta = f[i] - y[i]
 
                 for j in range(len(w)):
-                    w[j] += eta * delta * num_of_vec[i][j] * func_activ_der(y[i])
+                    w[j] += eta * delta * num_of_vec[i][j] * func_activ_der(net_y)
 
         errors = sum((f[i] ^ y[i]) for i in range(len(num_of_vec)))
         sumError.append(errors)
@@ -115,7 +115,8 @@ def training_brute_force(f, x, func_activ, func_activ_der, num_of_vec, flag):
 
         k += 1
 
-        if k >= 10: return -1
+        if k >= 100:
+            return -1
 
         if np.sum(errors) == 0:
             _, error = test_func_step(f, x, w, func_activ)
@@ -184,7 +185,7 @@ def sigmoid_brute_force_command():
         print('Перебор из %d векторов...' % i)
 
         for num_of_vec in all_combinations:
-            # Используем флаг для того, чтобы понять, что на НС обучилась
+            # Используем флаг для того, чтобы понять, что НС обучилась
             flag = 0
             count = training_brute_force(f, x, act_func, der_act_func, num_of_vec, flag)
 
@@ -194,10 +195,10 @@ def sigmoid_brute_force_command():
                 flag = 1
                 k = training_brute_force(f, x, act_func, der_act_func, num_of_vec, flag)
                 print('\nОбучилась за %d эпох' % k)
-
                 break
 
-        if flag == 1: break
+        if flag == 1:
+            break
 
 
 # Функция для предоставления необходимых данных алгоритму обучения и построение графика
@@ -231,8 +232,9 @@ def initialize():
         X.append(x)
         i += 1
 
+# Дописываем 1 к каждому элементу (вход смещения)
     for element in X:
-        element.insert(0, 1)    # Добавление 1 к каждому элементу (вход смещения)
+        element.insert(0, 1)
 
     print(X)
 
