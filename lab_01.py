@@ -28,8 +28,8 @@ def sigmoid(net):
 
 # Производная от сигмоидальной функции
 def der_sigmoid(net):
-    f = 0.5 * (net / (1 + abs(net)) + 1)
-    return 0.5 / ((1 + abs(f)) ** 2)
+    fun = 0.5 * (net / (1 + abs(net)) + 1)
+    return 0.5 / ((1 + abs(fun)) ** 2)
 
 
 # Алгоритм для обучения НС с пороговой и сигмоидальной функциями
@@ -156,7 +156,7 @@ def step_brute_force_command():
         print('Перебор из %d векторов...' % i)
 
         for num_of_vec in all_combinations:
-            # Используем флаг для того, чтобы понять, что на НС обучилась
+            # Используем флаг для того, чтобы понять, что НС обучилась
             flag = 0
             count = training_brute_force(f, x, act_func, der_act_func, num_of_vec, flag)
 
@@ -166,7 +166,6 @@ def step_brute_force_command():
                 flag = 1
                 k = training_brute_force(f, x, act_func, der_act_func, num_of_vec, flag)
                 print('\nОбучилась за %d эпох' % k)
-
                 break
 
         if flag == 1:
