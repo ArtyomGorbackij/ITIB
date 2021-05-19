@@ -2,6 +2,7 @@ from math import sqrt, pow
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 class Neuron:
     def __init__(self, real_values, window, teaching_rate):
         self.window = window
@@ -57,7 +58,7 @@ def calculate(begin, end, points_quantity, f):
 
 
 def main():
-    fun = lambda x: sin(x-1)
+    fun = lambda x: np.sin(x-1)
     a = -2
     b = 2
     x, real_values = calculate(a, b, 20, fun)
