@@ -1,86 +1,94 @@
-from math import sqrt, pow
+from math import sqrt
 import matplotlib.pyplot as plt
 import numpy as np
 
 
-class Neuron:
-    def __init__(self, real_values, window, teaching_rate):
-        self.window = window
-        self.points_num = 20
-        self.w = [0] * (self.window + 1)
-        self.real_val = real_values
-        self.calculated = self.real_val[:self.window] + [0] * (self.points_num - self.window)
-        self.nn = teaching_rate
-
-    def train(self, max_iter):
-        num = 0
-        epsilon = 0
-        while num < max_iter:
-            for i in range(self.window, self.points_num):
-                net = self.w[self.window]
-                for j in range(self.window):
-                    net += self.w[j] * self.real_val[i - self.window + j]
-                self.calculated[i] = net
-
-                for j in range(self.window):
-                    self.w[j] += self.nn * (self.real_val[i] - self.calculated[i]) * self.real_val[i - self.window + j]
-
-                epsilon = 0
-                for j in range(self.window, self.points_num):
-                    epsilon += pow(self.real_val[j] - self.calculated[j], 2)
-
-                epsilon = sqrt(epsilon)
-
-                if epsilon < 0.0001:
-                    print(epsilon)
-                    break
-
-            num += 1
-            print(num, epsilon, self.w)
-
-    def predict(self, num):
-        for i in range(self.points_num, self.points_num + num):
-            net = self.w[self.window]
-            for j in range(self.window):
-                net += self.w[j] * self.calculated[i - self.window + j]
-
-            self.calculated += [net]
+def fun(x):
+    return np.sin(x-1)
 
 
-def calculate(begin, end, points_quantity, f):
-    step = (end - begin) / (points_quantity - 1)
-    res = []
-    points = []
-    for i in range(points_quantity):
-        points += [begin + step * i]
-        res += [f(begin + step * i)]
-    return points, res
+def net(w, values, i):
+    return w[p] + sum(w[j] * values[i - p + j] for j in range(p))
 
 
-def main():
-    fun = lambda x: np.sin(x-1)
+def learn(epoches_count) -> np.array:
+    w = np.zeros(p + 1)
+    epoch = 0
+    eps = 1000
+    while epoch < epoches_count:
+        for i in range(p, n):
+            y_[i] = net(w, y, i)
+            d = (y[i] - y_[i])
+            for j in range(p):
+                w[j] += norm * d * y[i - p + j]
+            eps = sum((y[j] - y_[j]) ** 2 for j in range(p, n))
+            if sqrt(eps) < 0.0001:
+                break
+        epoch += 1
+    return w, eps
+
+
+def predict(w, num):
+    predicted_values = y_
+    for i in range(n, n + num):
+        net_ = net(w, predicted_values, i)
+        predicted_values = np.append(predicted_values, [net_])
+    return predicted_values
+
+
+if __name__ == "__main__":
     a = -2
     b = 2
-    x, real_values = calculate(a, b, 20, fun)
-    x1, y1 = calculate(b, 2 * b - a, 20, fun)
-    real_values += y1
-    x += x1
-
-    c = 400
-    d = 4
-    b = 0.5
-
-    n = Neuron(real_values, d, b)
-    n.train(c)
-
-    n.predict(20)
-
-    plt.xlabel("x")
-    plt.ylabel("y")
+    p = 6
+    norm = 0.5
+    n = 20
+    x = np.append(np.linspace(a, b, 20), np.linspace(b, 2 * b - a, 20))
+    y = fun(x)
+    y_ = np.append(y[:p], np.zeros(n - p))
+    # Обучение на М=4000 эпох
+    (w_, eps_) = learn(4000)
+    predicted_values_ = predict(w_, 20)
+    plt.xlabel("t")
+    plt.ylabel("x")
     plt.grid()
-    plt.plot(x, real_values)
-    plt.plot(x, n.calculated)
+    plt.plot(x, y)
+    plt.plot(x[20:], predicted_values_[20:], "o")
     plt.show()
-
-
-main()
+    # Исследование зависимости погрешности от числа эпох
+    e = list()
+    for i in range(1, 300, 1):
+        y_ = np.append(y[:p], np.zeros(n - p))
+        (w_, eps_) = learn(i)
+        e.append(eps_)
+    plt.xlabel("Количество эпох")
+    plt.ylabel("Погрешность")
+    plt.grid()
+    plt.plot(range(1, 300, 1), e)
+    plt.show()
+    print(e[len(e) - 1])
+    # Исследование зависимости погрешности от нормы обучения
+    e = list()
+    for i in np.arange(0.3, 1, 0.05):
+        norm = i
+        y_ = np.append(y[:p], np.zeros(n - p))
+        (w_, eps_) = learn(4000)
+        e.append(eps_)
+    norm = 0.5
+    plt.xlabel("Норма обучения")
+    plt.ylabel("Погрешность")
+    plt.grid()
+    plt.plot(np.arange(0.3, 1, 0.05), e)
+    plt.show()
+    # Исследование зависимости погрешности от длины окна
+    e = list()
+    for i in range(4, 16):
+        p = i
+        y_ = np.append(y[:p], np.zeros(n - p))
+        (w_, eps_) = learn(4000)
+        e.append(eps_)
+    p = 6
+    plt.xlabel("Длина окна")
+    plt.ylabel("Погрешность")
+    plt.grid()
+    plt.plot(range(4, 16), e)
+    plt.show()
